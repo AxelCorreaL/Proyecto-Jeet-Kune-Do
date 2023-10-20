@@ -1,0 +1,59 @@
+{% extends 'base.html'%} {% block content%}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <body>
+    <main class="container py-5">
+      <div class="card card-body">
+        <div class="row">
+          <h1>Usuarios</h1>
+          <div class="col">
+            <form action="/usuarios/" method="POST">
+              {% csrf_token %}
+              {{ error }}  
+              <h3>Agregar Usuario</h3>                
+              {{user_form.as_p}}
+              {{profile_form.as_p}}
+
+                <button class="btn btn-primary">Enviar</button>
+            </form>
+          </div>
+          <div class="col">
+            <h3>Directores Actuales</h3>
+            <ul>
+                {% for director in directores %}
+                <li> {{director.user.username}} </li>
+                <ul>
+                    <li> Nombre: {{director.nombre}} </li>
+                    <li> Rol: {{director.rol}} </li>
+                    <a class="btn btn-primary" href="{% url 'edit_usuario' director.id %}">
+                      Editar
+                    </a>
+                </ul>
+                {% endfor %}
+            </ul>
+            <h3>Secretarios Actuales</h3>
+            <ul>
+                {% for secretario in secretarios %}
+                <li> {{secretario.usuario.user.username}} </li>
+                <ul>
+                    <li> Nombre: {{secretario.nombre}} </li>
+                    <li> Rol: {{secretario.rol}} </li>
+                    <a class="btn btn-primary" href="{% url 'edit_usuario' secretario.id %}">
+                      Editar
+                    </a>
+                </ul>
+                {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
+
+{% endblock%}

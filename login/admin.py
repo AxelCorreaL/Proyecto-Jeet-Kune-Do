@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Administradores
+from .models import UserProfile, Sedes
 
 # Register your models here.
-admin.site.register(Administradores)
+admin.site.register(Sedes)
+admin.site.register(UserProfile)

@@ -125,3 +125,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 
 #AUTH_USER_MODEL = 'login.Administradores'
+AUTH_PROFILE_MODULE = 'login/UserProfile'

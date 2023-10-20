@@ -1,21 +1,27 @@
+from django import forms
 from django.db import models
+from django.contrib.auth.models import Group, User
 
 # Create your models here.
-
-class Administradores(models.Model):
-    username = models.CharField(max_length=200)
-    password = models.CharField(max_length=200)
-    rol = models.CharField(max_length=200)
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    ROLES = [('guardian', 'Guardian'), 
+             ('director', 'Director'),
+             ('secretario', 'Secretario'),
+             ('instructor', 'Instructor'),
+             ('alumno', 'alumno')
+             ]
+    rol = models.CharField(max_length=25, choices=ROLES, default='director')
     nombre = models.CharField(max_length=200)
     apellido_paterno = models.CharField(max_length=200)
     apellido_materno= models.CharField(max_length=200)
-    fecha_nacimiento = models.DateField()
+    fecha_nacimiento = models.DateField(default='2023-10-18')
 
 class Sedes(models.Model):
     nombre = models.CharField(max_length=200)
-    municipio = models.CharField(max_length=200)
+    ubicacion = models.CharField(max_length=200)
     codigo_postal  = models.IntegerField()
-    id_Administrador = models.ForeignKey(Administradores, on_delete= models.CASCADE)
+    #id_Administrador = models.ForeignKey(Administradores, on_delete= models.CASCADE)
 
 class Instructores(models.Model):
     username = models.CharField(max_length=200)

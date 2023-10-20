@@ -1,0 +1,44 @@
+{% extends 'base.html'%} {% block content%}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <body>
+    <main class="container py-5">
+      <div class="card card-body">
+        <div class="row">
+          <h1>Sedes</h1>
+          <div class="col">
+            <form action="/sedes/" method="POST">
+                <h3>Agregar Sede</h3>
+                {% csrf_token %}
+                {{form.as_p}}
+
+                <button>Enviar</button>
+            </form>
+          </div>
+          <div class="col">
+            <h3>Sedes Actuales</h3>
+            <ul>
+                {% for sede in sedes%}
+                <li> {{sede.nombre}} </li>
+                <ul>
+                    <li> Ubicación: {{sede.ubicacion}} </li>
+                    <li> Código Postal: {{sede.codigo_postal}} </li>
+                    <a class="btn btn-primary" href="{% url 'edit_sede' sede.id %}">
+                      Editar
+                    </a>
+                </ul>
+                {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
+
+{% endblock%}
