@@ -2,7 +2,7 @@
     <main class="container py-5">
         <div class="card card-body">
             <div>
-                <h1>{{sede.nombre}}</h1>
+                <h1>{{grupo.grupo}}</h1>
                 {{error}}
                 {% if message %}
                 <div class="alert alert-success">
@@ -17,10 +17,10 @@
                         Guardar cambios
                     </button>
                 </form>
-                <form action="{% url 'delete_sede' sede.id %}" method="POST">
+                <form action="{% url 'delete_grupo' grupo.id %}" method="POST">
                     {% csrf_token %}
                     <button class="btn btn-warning">
-                        Eliminar Sede
+                        Eliminar Grupo
                     </button>
                 </form>
                 

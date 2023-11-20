@@ -14,5 +14,9 @@ urlpatterns = [
         path('sedes/<int:id_sede>/delete_sede', views.delete_sede, name='delete_sede'),
         path('usuarios/', views.usuarios, name='usuarios'),
         path('usuarios/<int:id_usuario>', views.edit_usuario, name='edit_usuario'),
-        path('usuarios/<int:id_usuario>/delete_usuario', views.delete_usuario, name='delete_usuario')
+        path('usuarios/<int:id_usuario>/delete_usuario', views.delete_usuario, name='delete_usuario'),
+        path('grupos/', views.grupos, name='grupos'),
+        path('grupos/<int:id_grupo>', views.edit_grupo, name='edit_grupo'),
+        path('grupos/<int:id_grupo>/delete_grupo', views.delete_grupo, name='delete_grupo')
+
 ]

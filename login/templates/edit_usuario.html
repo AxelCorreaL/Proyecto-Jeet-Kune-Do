@@ -1,13 +1,5 @@
 {% extends 'base.html'%} {% block content%}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documen</title>
-</head>
-<body>
     <main class="container py-5">
         <div class="card card-body">
             <div>
@@ -22,6 +14,7 @@
                 <form method="POST">
                     {% csrf_token %}
                     {{form.as_p}}
+                    
                     <button class="btn btn-primary">
                         Guardar cambios
                     </button>
@@ -37,8 +30,6 @@
         </div>
     </main>
 
-</body>
-</html>
 
 
 

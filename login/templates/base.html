@@ -28,7 +28,6 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
             {% if user.is_authenticated %}
-            
             <li class="nav-item">
               <a class="nav-link" href="/profile">Perfil</a>
             </li>
@@ -37,7 +36,9 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/sedes">Sedes</a>
-
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/grupos">Grupos</a>
             </li>
             <li class="nav-item">
               <a class="nav-link " href="/logout">Cierra Sesión</a>
@@ -53,6 +54,7 @@
               <a class="nav-link" href="/signup">Crea tu Cuenta</a>
             </li>
             {% endif %}
+            
           </ul>
         </div>
       </div>

@@ -2,17 +2,45 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms import ModelForm
-from .models import Sedes, UserProfile
+from .models import Sedes, UserProfile, Grupos, Dias_Semana
 from django.db import models
+
+class InstructorChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.get_full_name()
+
+class SedeChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.nombre
+
+class UserCreateForm(UserCreationForm):
+    username = forms.CharField(label="Nombre de usuario", max_length=200)
+    password1 = forms.CharField(label="Contraseña", widget=forms.PasswordInput)
+    password2 = forms.CharField(label="Confirma Contraseña", widget=forms.PasswordInput)
+
+    def save(self, commit=True):
+        user = super(UserCreateForm, self).save(commit=False)
+        if commit:
+            user.save()
+        return user
+
+    class Meta:
+        model = User
+        fields = ("username", "password1", "password2")
+        help_texts = {'username':None, 'password1':None, 'password2':None}
 
 class Login(forms.Form):
     username = forms.CharField(label="Nombre de usuario", max_length=200)
     password = forms.CharField(label="Contraseña", widget=forms.PasswordInput)
 
+
 class Create_Sede(ModelForm):
+    directores = [(director.id, director.get_full_name) for director in UserProfile.objects.filter(rol='director')]
+    id_Director = forms.ChoiceField(label="Director de Sede", choices= directores)
+
     class Meta:
         model = Sedes
-        fields = ['nombre', 'ubicacion', 'codigo_postal']
+        fields = ['nombre', 'ubicacion', 'codigo_postal', 'id_Director']
 
 
 class Create_Usuario(ModelForm):
@@ -21,22 +49,38 @@ class Create_Usuario(ModelForm):
         fields =['rol', 'nombre', 
                   'apellido_paterno', 'apellido_materno', 'fecha_nacimiento']
     
-        '''
-    def save(self, commit=True):
-        user_profile = super().save(commit=False)
-        user = User.objects.create_user(username=self.cleaned_data['username'], password=self.cleaned_data['password1'])
-        user_profile.user = user
+class Create_Grupo(ModelForm):
+    #Instructores = [(instructor.id, instructor.get_full_name) for instructor in UserProfile.objects.filter(rol='instructor')]
+    #id_Instructor = forms.ChoiceField(label="Instructor de Curso", choices= Instructores)
+    
+    #Sedes = [(sede, sede.nombre) for sede in Sedes.objects.all()]
+    #id_Sede = forms.ChoiceField(label="Sede ", choices= Sedes)
 
-                user_profile.rol = self.cleaned_data['rol']
-        user_profile.nombre = self.cleaned_data['nombre']
-        user_profile.apellido_paterno = self.cleaned_data['apellido_paterno']
-        user_profile.apellido_materno = self.cleaned_data['apellido_materno']
-        user_profile.fecha_nacimiento = self.cleaned_data['fecha_nacimiento']
-        
+    instructor = InstructorChoiceField(
+        label='Intructor del curso',
+        queryset=UserProfile.objects.filter(rol='instructor'),
+        empty_label=None
+    )
 
-        if commit:
-            user_profile.user.save()
-            user_profile.save()
+    sede = SedeChoiceField(
+        label='Sede',
+        queryset= Sedes.objects.all(),
+        empty_label=None
+    )
 
-        return user_profile
-        '''
+    dias_semana = forms.ModelMultipleChoiceField(
+        queryset=Dias_Semana.objects.all(),
+        widget=forms.CheckboxSelectMultiple
+    )
+
+    class Meta:
+        model = Grupos
+        fields = ['grupo', 'curso', 'hora_inicio', 'duracion', 'sede', 'instructor', 'dias_semana']
+
+class DiasSemanaForm(ModelForm):
+    class Meta:
+        model = Dias_Semana
+        fields = ['dia']
+        widgets = {
+            'dia': forms.CheckboxSelectMultiple,
+        }

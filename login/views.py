@@ -3,8 +3,8 @@ from django.http import HttpResponse
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
-from .forms import Create_Sede, Create_Usuario
-from .models import Sedes, UserProfile
+from .forms import Create_Sede, Create_Usuario, UserCreateForm, Create_Grupo
+from .models import Sedes, UserProfile, Grupos, Dias_Semana
 
 # Create your views here.
 def index(request):
@@ -49,13 +49,13 @@ def signup(request):
             except:
                 return render(request, 'signup.html', {
                 'form': UserCreationForm,
-                'error': 'Username already exists'
+                'error': 'El nombre de usuario ya existe'
                 })
                 
         else:
             return render(request, 'signup.html', {
                 'form': UserCreationForm,
-                'error': 'Passwords do not match'
+                'error': 'Las contraseñas no coinciden'
                 })
 
 def signout(request):
@@ -63,11 +63,13 @@ def signout(request):
     return redirect('home')
 
 def profile(request):
+    #pk = request.user.pk
+    #nombre = get_object_or_404(UserProfile, pk=pk).nombre
+    #return render(request, 'profile.html', {'nombre': nombre})
     return render(request, 'profile.html')
 
 def sedes(request):
     sedes = Sedes.objects.all()
-    # sede = Sedes(instance=sede)
     if request.method == 'GET':
         return render(request, 'sedes.html', {
             'form': Create_Sede,
@@ -75,12 +77,17 @@ def sedes(request):
         })
     else:
         form = Create_Sede(request.POST)
-        # new_sede = form.save(commit=False)
-#        form.id_Administrador = request.user
-        form.save()
+        if form.is_valid():
+            director_id = form.cleaned_data['id_Director']
+            director = UserProfile.objects.get(id=director_id)
+        
+            sede = form.save(commit=False)
+            sede.director = director
+            sede.save()
         return render(request, 'sedes.html', {
             'form': Create_Sede,
-            'sedes' : sedes
+            'sedes' : sedes,
+            'message' : 'Sede creada satisfactoriamente'
         })
 
 def edit_sede(request, id_sede):
@@ -116,19 +123,19 @@ def delete_sede(request, id_sede):
         return redirect('sedes')
 
 def usuarios(request):
-    usuarios = UserProfile.objects.all()
+    # usuarios = UserProfile.objects.all()
     directores = UserProfile.objects.filter(rol='director')
     secretarios = UserProfile.objects.filter(rol='secretario')
     if request.method == 'GET':
         return render(request, 'usuarios.html', {
-                'user_form': UserCreationForm,
+                'user_form': UserCreateForm,
                 'profile_form' : Create_Usuario,
                 'directores' : directores,
                 'secretarios' : secretarios
             })
     
     else:
-        user_form = UserCreationForm(request.POST)
+        user_form = UserCreateForm(request.POST)
         profile_form = Create_Usuario(request.POST)
         if user_form.is_valid() and profile_form.is_valid():
             user = user_form.save()
@@ -136,7 +143,7 @@ def usuarios(request):
             profile.user = user
             profile.save()
             return render(request, 'usuarios.html', {
-                'user_form': UserCreationForm,
+                'user_form': UserCreateForm,
                 'profile_form': Create_Usuario,
                 'directores' : directores,
                 'secretarios' : secretarios,
@@ -181,3 +188,76 @@ def delete_usuario(request, id_usuario):
         # Código para eliminar la sede
         usuario.delete()
         return redirect('usuarios')
+    
+
+def grupos(request):
+    grupos = Grupos.objects.all()
+    
+    if request.method == 'GET':
+        return render(request, 'grupos.html', 
+                      {
+                          'grupoForm': Create_Grupo,
+                          'grupos': grupos
+                      })
+    else:
+        grupoForm = Create_Grupo(request.POST)
+        
+        if grupoForm.is_valid():
+            # Código para guardar en la base de datos
+            dia = grupoForm.cleaned_data['dia']
+            sede_id = grupoForm.cleaned_data['sede'].id
+            sede = Sedes.objects.get(pk=sede_id)
+
+            nuevo_grupo = grupoForm.save(commit=False)
+            nuevo_grupo.sede = sede
+
+            #nuevo_dia = Dias_Semana.objects.create(dia=dia)
+            #nuevo_grupo.dias_semana.add(nuevo_dia)
+
+            nuevo_grupo.save()
+
+
+            grupos = Grupos.objects.all()
+            return render(request, 'grupos.html', {
+            'grupoForm': Create_Grupo,
+            'grupos': grupos,
+            'message' : 'Grupo agregado exitosamente'
+        })
+        else:
+            return render(request, 'grupos.html', {
+            'grupoForm': Create_Grupo,
+            'grupos': grupos,
+            'error': 'No se pudo agregar'
+        })
+
+def edit_grupo(request, id_grupo):
+    if request.method == 'GET':
+        grupo = get_object_or_404(Grupos, pk=id_grupo)
+        form = Create_Grupo(instance=grupo)
+        return render(request, 'edit_grupo.html', {
+            'grupo': grupo,
+            'form' : form
+        })
+    else:
+        try:
+            grupo = get_object_or_404(Grupos, pk=id_grupo)
+            form = Create_Grupo(request.POST, instance= grupo)
+            form.save()
+            return render(request, 'edit_grupo.html', {
+            'grupo': grupo,
+            'form' : form,
+            'message': 'Datos actualizados'
+        })
+        except ValueError:
+            return render(request, 'edit_grupo.html', {
+            'grupo': grupo,
+            'form' : form,
+            'error': 'Problema al actualizar el grupo'
+        })
+
+def delete_grupo(request, id_grupo):
+    grupo = get_object_or_404(Grupos, pk=id_grupo)
+    if request.method == 'POST':
+        # Código para eliminar 
+        grupo.delete()
+        return redirect('grupos')

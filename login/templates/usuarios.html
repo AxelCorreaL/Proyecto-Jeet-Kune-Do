@@ -1,12 +1,4 @@
 {% extends 'base.html'%} {% block content%}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <body>
     <main class="container py-5">
       <div class="card card-body">
         <div class="row">
@@ -14,7 +6,12 @@
           <div class="col">
             <form action="/usuarios/" method="POST">
               {% csrf_token %}
-              {{ error }}  
+              {% if error %}
+                <div class="alert alert-success">
+                        {{ error }}
+                </div>
+                {% endif %}
+                
               <h3>Agregar Usuario</h3>                
               {{user_form.as_p}}
               {{profile_form.as_p}}
@@ -24,36 +21,30 @@
           </div>
           <div class="col">
             <h3>Directores Actuales</h3>
-            <ul>
+            <ul class="list-group">
                 {% for director in directores %}
-                <li> {{director.user.username}} </li>
-                <ul>
-                    <li> Nombre: {{director.nombre}} </li>
-                    <li> Rol: {{director.rol}} </li>
-                    <a class="btn btn-primary" href="{% url 'edit_usuario' director.id %}">
-                      Editar
+                    <a class="list-group-item" href="{% url 'edit_usuario' director.id %}">
+                    <header class="d-flex justify-content-between">
+                      <p>Nombre: {{director.nombre}} {{director.apellido_paterno}} </p>
+                      <p>Rol: {{director.rol}} </p>
+                    </header>
                     </a>
-                </ul>
                 {% endfor %}
             </ul>
             <h3>Secretarios Actuales</h3>
-            <ul>
+            <ul class="list-group">
                 {% for secretario in secretarios %}
-                <li> {{secretario.usuario.user.username}} </li>
-                <ul>
-                    <li> Nombre: {{secretario.nombre}} </li>
-                    <li> Rol: {{secretario.rol}} </li>
-                    <a class="btn btn-primary" href="{% url 'edit_usuario' secretario.id %}">
-                      Editar
+                    <a class="list-group-item" href="{% url 'edit_usuario' secretario.id %}">
+                    <header class="d-flex justify-content-between">
+                      <p>Nombre: {{secretario.nombre}} {{secretario.apellido_paterno}} </p>
+                      <p>Rol: {{secretario.rol}} </p>
+                    </header>
                     </a>
-                </ul>
                 {% endfor %}
             </ul>
           </div>
         </div>
       </div>
     </main>
-  </body>
-</html>
 
 {% endblock%}
