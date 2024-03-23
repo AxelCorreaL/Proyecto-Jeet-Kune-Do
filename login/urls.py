@@ -17,6 +17,10 @@ urlpatterns = [
         path('usuarios/<int:id_usuario>/delete_usuario', views.delete_usuario, name='delete_usuario'),
         path('grupos/', views.grupos, name='grupos'),
         path('grupos/<int:id_grupo>', views.edit_grupo, name='edit_grupo'),
-        path('grupos/<int:id_grupo>/delete_grupo', views.delete_grupo, name='delete_grupo')
+        path('grupos/<int:id_grupo>/delete_grupo', views.delete_grupo, name='delete_grupo'),
+        path('list_alumnos/<int:grupo_id>', views.list_alumnos, name='list_alumnos'),
+        path('add_alumno/<int:grupo_id>/<int:alumno_id>', views.add_alumno, name='add_alumno'),
+        path('remove_alumno/<int:grupo_id>/<int:alumno_id>', views.remove_alumno, name='remove_alumno')
+
 
 ]

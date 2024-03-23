@@ -4,7 +4,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from .forms import Create_Sede, Create_Usuario, UserCreateForm, Create_Grupo
-from .models import Sedes, UserProfile, Grupos, Dias_Semana
+from .models import Sedes, UserProfile, Grupos, Inscripciones
+from django.contrib.auth.decorators import login_required
+from datetime import datetime
+from django.contrib import messages
 
 # Create your views here.
 def index(request):
@@ -62,12 +65,14 @@ def signout(request):
     logout(request)
     return redirect('home')
 
+@login_required
 def profile(request):
     #pk = request.user.pk
     #nombre = get_object_or_404(UserProfile, pk=pk).nombre
     #return render(request, 'profile.html', {'nombre': nombre})
     return render(request, 'profile.html')
 
+@login_required
 def sedes(request):
     sedes = Sedes.objects.all()
     if request.method == 'GET':
@@ -90,6 +95,7 @@ def sedes(request):
             'message' : 'Sede creada satisfactoriamente'
         })
 
+@login_required
 def edit_sede(request, id_sede):
     if request.method == 'GET':
         sede = get_object_or_404(Sedes, pk=id_sede)
@@ -115,6 +121,7 @@ def edit_sede(request, id_sede):
             'error': 'Problema al actualizar la sede'
         })
 
+@login_required
 def delete_sede(request, id_sede):
     sede = get_object_or_404(Sedes, pk=id_sede)
     if request.method == 'POST':
@@ -122,16 +129,19 @@ def delete_sede(request, id_sede):
         sede.delete()
         return redirect('sedes')
 
+@login_required
 def usuarios(request):
     # usuarios = UserProfile.objects.all()
     directores = UserProfile.objects.filter(rol='director')
     secretarios = UserProfile.objects.filter(rol='secretario')
+    instructores = UserProfile.objects.filter(rol='instructor')
     if request.method == 'GET':
         return render(request, 'usuarios.html', {
                 'user_form': UserCreateForm,
                 'profile_form' : Create_Usuario,
                 'directores' : directores,
-                'secretarios' : secretarios
+                'secretarios' : secretarios,
+                'instructores' : instructores
             })
     
     else:
@@ -147,6 +157,7 @@ def usuarios(request):
                 'profile_form': Create_Usuario,
                 'directores' : directores,
                 'secretarios' : secretarios,
+                'instructores' : instructores,
                 'error': 'Usuario creado exitosamente'
             })
         else:
@@ -154,9 +165,11 @@ def usuarios(request):
             'user_form': user_form,
             'profile_form': profile_form,
             'directores' : directores,
-            'secretarios' : secretarios
+            'secretarios' : secretarios,
+            'instructores' : instructores
     })  
 
+@login_required
 def edit_usuario(request, id_usuario):
     if request.method == 'GET':
         usuario = get_object_or_404(UserProfile, pk=id_usuario)
@@ -182,6 +195,7 @@ def edit_usuario(request, id_usuario):
             'error': 'Problema al actualizar el usuario'
         })
 
+@login_required
 def delete_usuario(request, id_usuario):
     usuario = get_object_or_404(UserProfile, pk=id_usuario)
     if request.method == 'POST':
@@ -189,7 +203,7 @@ def delete_usuario(request, id_usuario):
         usuario.delete()
         return redirect('usuarios')
     
-
+@login_required
 def grupos(request):
     grupos = Grupos.objects.all()
     
@@ -204,18 +218,13 @@ def grupos(request):
         
         if grupoForm.is_valid():
             # Código para guardar en la base de datos
-            dia = grupoForm.cleaned_data['dia']
             sede_id = grupoForm.cleaned_data['sede'].id
             sede = Sedes.objects.get(pk=sede_id)
 
             nuevo_grupo = grupoForm.save(commit=False)
             nuevo_grupo.sede = sede
 
-            #nuevo_dia = Dias_Semana.objects.create(dia=dia)
-            #nuevo_grupo.dias_semana.add(nuevo_dia)
-
             nuevo_grupo.save()
-
 
             grupos = Grupos.objects.all()
             return render(request, 'grupos.html', {
@@ -230,6 +239,7 @@ def grupos(request):
             'error': 'No se pudo agregar'
         })
 
+@login_required
 def edit_grupo(request, id_grupo):
     if request.method == 'GET':
         grupo = get_object_or_404(Grupos, pk=id_grupo)
@@ -255,9 +265,66 @@ def edit_grupo(request, id_grupo):
             'error': 'Problema al actualizar el grupo'
         })
 
+@login_required
 def delete_grupo(request, id_grupo):
     grupo = get_object_or_404(Grupos, pk=id_grupo)
     if request.method == 'POST':
         # Código para eliminar 
         grupo.delete()
         return redirect('grupos')
+
+@login_required
+def list_alumnos(request, grupo_id):
+    try:
+        grupo = Grupos.objects.get(pk=grupo_id)
+    except Grupos.DoesNotExist:
+        # Manejar la situación en la que el grupo no existe
+        return render(request, 'grupos')
+
+    # Obtener todos los alumnos que no están inscritos en el grupo
+    alumnos_no_inscritos = UserProfile.objects.filter(rol='alumno').exclude(inscripciones__grupo=grupo)
+
+    # Obtener todos los alumnos que están inscritos en el grupo
+    alumnos_inscritos = UserProfile.objects.filter(rol='alumno', inscripciones__grupo=grupo)
+
+    return render(request, 'list_alumnos.html', 
+                  {'grupo': grupo, 
+                   'alumnos_no_inscritos': alumnos_no_inscritos,
+                   'alumnos_inscritos': alumnos_inscritos})
+
+@login_required
+def add_alumno(request, grupo_id, alumno_id):
+    grupo = get_object_or_404(Grupos, id=grupo_id)
+    alumno = get_object_or_404(UserProfile, id=alumno_id)
+
+    # Verifica si ya existe una inscripción para este alumno y grupo
+    inscripcion_existente = Inscripciones.objects.filter(alumno=alumno, grupo=grupo).exists()
+
+    if not inscripcion_existente:
+        # Si no existe, crea una nueva inscripción
+        inscripcion = Inscripciones(alumno=alumno, grupo=grupo, fecha_inscripcion=datetime.now())
+        inscripcion.save()
+
+        return redirect('list_alumnos', grupo_id=grupo_id)
+        
+    else:
+        return redirect('list_alumnos', grupo_id=grupo_id)
+    
+@login_required
+def remove_alumno(request, grupo_id, alumno_id):
+    grupo = get_object_or_404(Grupos, id=grupo_id)
+    alumno = get_object_or_404(UserProfile, id=alumno_id)
+
+    # Verifica si existe una inscripción para este alumno y grupo
+    inscripcion_existente = Inscripciones.objects.filter(alumno=alumno, grupo=grupo).exists()
+
+    if inscripcion_existente:
+        # Si existe, elimina la inscripción
+        Inscripciones.objects.filter(alumno=alumno, grupo=grupo).delete()
+
+        messages.success(request, 'Alumno eliminado exitosamente')
+    else:
+        messages.error(request, 'No se encontró una inscripción para el alumno en este grupo')
+
+    return redirect('list_alumnos', grupo_id=grupo_id)
+    

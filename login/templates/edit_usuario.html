@@ -19,9 +19,9 @@
                         Guardar cambios
                     </button>
                 </form>
-                <form action="{% url 'delete_usuario' usuario.id %}" method="POST">
+                <form action="{% url 'delete_usuario' usuario.id %}">
                     {% csrf_token %}
-                    <button class="btn btn-warning">
+                    <button class="btn btn-danger" style="display: flex;">
                         Eliminar Usuario
                     </button>
                 </form>
@@ -29,8 +29,5 @@
             </div>
         </div>
     </main>
-
-
-
 
 {% endblock %}

@@ -28,8 +28,17 @@ class Sedes(models.Model):
     director = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
 
 class Dias_Semana(models.Model):
-    dia = models.PositiveSmallIntegerField(choices=[(1, 'Lunes'), (2, 'Martes'), (3, 'Miércoles'), (4, 'Jueves'), (5, 'Viernes'), (6, 'Sábado'), (7, 'Domingo')])
-
+    dia = models.PositiveSmallIntegerField(choices=[
+        (1, 'Lunes'),
+        (2, 'Martes'), 
+        (3, 'Miércoles'), 
+        (4, 'Jueves'), 
+        (5, 'Viernes'), 
+        (6, 'Sábado'), 
+        (7, 'Domingo')])
+    
+    def __str__(self):
+        return self.get_dia_display()
 
 class Grupos(models.Model):
     CURSOS = [('jiu jitsu', 'Jiu Jitsu'), 
@@ -53,6 +62,6 @@ class GruposDias(models.Model):
     dia_semana = models.ForeignKey(Dias_Semana, on_delete=models.CASCADE)
 
 class Inscripciones(models.Model):
-    alumno = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
+    alumno = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='inscripciones' ,null=True)
     grupo = models.ForeignKey(Grupos, on_delete=models.CASCADE)
     fecha_inscripcion = models.DateField()

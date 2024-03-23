@@ -1,29 +1,31 @@
 {% extends 'base.html'%} {% block content%}
-    <main class="container py-5">
-      <div class="card card-body">
-        <div class="row">
-          <h1>Usuarios</h1>
-          <div class="col">
+<main class="container py-5">
+  <div class="card card-body">
+    <div class="row">
+      <h1>Usuarios</h1>
+      {% if user.userprofile.rol != 'alumno' and user.userprofile.rol != 'instructor' %}
+      <div class="col-md-6">
             <form action="/usuarios/" method="POST">
               {% csrf_token %}
               {% if error %}
-                <div class="alert alert-success">
-                        {{ error }}
-                </div>
-                {% endif %}
-                
+              <div class="alert alert-success">
+                {{ error }}
+              </div>
+              {% endif %}
+              
               <h3>Agregar Usuario</h3>                
               {{user_form.as_p}}
               {{profile_form.as_p}}
-
-                <button class="btn btn-primary">Enviar</button>
+              
+              <button class="btn btn-primary">Enviar</button>
             </form>
-          </div>
-          <div class="col">
+        </div>
+        {% endif %}
+          <div class="col-md-6">
             <h3>Directores Actuales</h3>
             <ul class="list-group">
                 {% for director in directores %}
-                    <a class="list-group-item" href="{% url 'edit_usuario' director.id %}">
+                  <a class="list-group-item btn-hover" href="{% url 'edit_usuario' director.id %}">
                     <header class="d-flex justify-content-between">
                       <p>Nombre: {{director.nombre}} {{director.apellido_paterno}} </p>
                       <p>Rol: {{director.rol}} </p>
@@ -34,10 +36,21 @@
             <h3>Secretarios Actuales</h3>
             <ul class="list-group">
                 {% for secretario in secretarios %}
-                    <a class="list-group-item" href="{% url 'edit_usuario' secretario.id %}">
+                    <a class="list-group-item btn-hover" href="{% url 'edit_usuario' secretario.id %}">
                     <header class="d-flex justify-content-between">
                       <p>Nombre: {{secretario.nombre}} {{secretario.apellido_paterno}} </p>
                       <p>Rol: {{secretario.rol}} </p>
+                    </header>
+                    </a>
+                {% endfor %}
+            </ul>
+            <h3>Instructores Actuales</h3>
+            <ul class="list-group">
+                {% for instructor in instructores %}
+                    <a class="list-group-item btn-hover" href="{% url 'edit_usuario' instructor.id %}">
+                    <header class="d-flex justify-content-between">
+                      <p>Nombre: {{instructor.nombre}} {{instructor.apellido_paterno}} </p>
+                      <p>Rol: {{instructor.rol}} </p>
                     </header>
                     </a>
                 {% endfor %}
@@ -46,5 +59,54 @@
         </div>
       </div>
     </main>
+
+  <style>
+      /* Estilo personalizado para cambiar el color al pasar el ratón */
+      .btn-hover:hover {
+          background-color: #DCDCDC;
+      }
+  
+      form {
+          max-width: 400px;
+          margin: auto;
+      }
+  
+      label {
+          display: block;
+          margin-bottom: 5px;
+      }
+  
+      input, textarea {
+          width: 100%;
+          margin-bottom: 10px;
+          padding: 8px;
+          box-sizing: border-box;
+      }
+  
+      button {
+          display: block;
+      }
+  
+      /* Estilos específicos para el ModelMultipleChoiceField */
+    fieldset {
+        border: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .checkbox-group label {
+        /* Restablece los estilos que no deseas aplicar al ModelMultipleChoiceField */
+        display: block;
+        margin-bottom: 0;
+        padding-bottom: 5px; /* Ajusta según sea necesario para la separación entre la línea y el texto */
+        border-bottom: 1px solid #000; /* Añade un borde inferior */
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        margin-top: 0;
+    }
+  </style>
+    
+    
 
 {% endblock%}

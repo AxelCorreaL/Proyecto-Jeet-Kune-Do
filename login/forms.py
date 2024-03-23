@@ -46,16 +46,15 @@ class Create_Sede(ModelForm):
 class Create_Usuario(ModelForm):
     class Meta():
         model = UserProfile
-        fields =['rol', 'nombre', 
+        fields =['rol', 'nombre', 'email',
                   'apellido_paterno', 'apellido_materno', 'fecha_nacimiento']
     
-class Create_Grupo(ModelForm):
-    #Instructores = [(instructor.id, instructor.get_full_name) for instructor in UserProfile.objects.filter(rol='instructor')]
-    #id_Instructor = forms.ChoiceField(label="Instructor de Curso", choices= Instructores)
-    
-    #Sedes = [(sede, sede.nombre) for sede in Sedes.objects.all()]
-    #id_Sede = forms.ChoiceField(label="Sede ", choices= Sedes)
+class DiasSemanaCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
+    def option_label(self, option):
+        # Personaliza cómo se muestra cada opción en el widget
+        return str(option.dia)
 
+class Create_Grupo(ModelForm):
     instructor = InstructorChoiceField(
         label='Intructor del curso',
         queryset=UserProfile.objects.filter(rol='instructor'),
@@ -69,18 +68,13 @@ class Create_Grupo(ModelForm):
     )
 
     dias_semana = forms.ModelMultipleChoiceField(
+        label='Días de la semana',
         queryset=Dias_Semana.objects.all(),
-        widget=forms.CheckboxSelectMultiple
+        widget=DiasSemanaCheckboxSelectMultiple,
+        to_field_name='dia'
     )
 
     class Meta:
         model = Grupos
         fields = ['grupo', 'curso', 'hora_inicio', 'duracion', 'sede', 'instructor', 'dias_semana']
 
-class DiasSemanaForm(ModelForm):
-    class Meta:
-        model = Dias_Semana
-        fields = ['dia']
-        widgets = {
-            'dia': forms.CheckboxSelectMultiple,
-        }

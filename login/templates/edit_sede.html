@@ -13,13 +13,13 @@
                 <form method="POST">
                     {% csrf_token %}
                     {{form.as_p}}
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary" {% if user.userprofile.rol != 'guardian' %}disabled{% endif %}>
                         Guardar cambios
                     </button>
                 </form>
                 <form action="{% url 'delete_sede' sede.id %}" method="POST">
                     {% csrf_token %}
-                    <button class="btn btn-warning">
+                    <button class="btn btn-danger" {% if user.userprofile.rol != 'guardian' %}disabled{% endif %}>
                         Eliminar Sede
                     </button>
                 </form>

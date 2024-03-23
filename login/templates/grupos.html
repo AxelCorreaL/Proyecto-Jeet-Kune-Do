@@ -6,7 +6,8 @@
     <div class="card card-body">
       <div class="row">
         <h1>Grupos</h1>
-        <div class="col">
+        {% if user.userprofile.rol == 'director' or user.userprofile.rol == 'guardian' %}
+        <div class="col-md-6">
           <form action="/grupos/" method="POST">
             {% if message %}
              	<div class="alert alert-success">{{ message }}</div>
@@ -21,22 +22,22 @@
             {% csrf_token %}
               
             {{ grupoForm.as_p }}
-            {{ diaForm }}
             <button class="btn btn-primary">Enviar</button>
           </form>
         </div>
-        <div class="col">
+        {% endif %}
+        <div class="col-md-6">
           <h3>Grupos Actuales</h3>
-          <ul>
+          <ul class="list-group">
               {% for grupo in grupos %}
-              <li>Grupo: {{grupo.grupo}} </li>
-              <ul>
-                  <li> Clase: {{grupo.curso}} </li>
-                  <li> Instructor: {{grupo.instructor.get_full_name}} </li>
-                  <a class="btn btn-primary" href="{% url 'edit_grupo' grupo.id %} ">
-                    Editar
-                  </a>
-              </ul>
+              <a href= "{% url 'edit_grupo' grupo.id %}" class="list-group-item btn-hover">
+                <header class="d-flex justify-content-between">
+                  <p>Grupo: {{grupo.grupo}}</p>
+                  <p>Clase: {{grupo.curso}}</p>
+                  <p>Instructor: {{grupo.instructor.get_full_name}} </p>
+                </header>
+              </a>
+
               {% endfor %}
           </ul>
         </div>
@@ -44,5 +45,11 @@
     </div>
   </main>
 
+  <style>
+    /* Estilo personalizado para cambiar el color al pasar el ratón */
+    .btn-hover:hover {
+      background-color:#DCDCDC;
+    }
+  </style>
 
 {% endblock %}

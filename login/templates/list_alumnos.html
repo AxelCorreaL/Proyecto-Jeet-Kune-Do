@@ -1,0 +1,53 @@
+{% extends 'base.html'%}
+
+{% block content%}
+<main class="container py-5">
+    <div class="card card-body">
+        <div class="row">
+          <h1>Lista de Alumnos. Grupo: {{ grupo.grupo }}</h1>
+          {% if error %}
+          <div class="alert alert-danger">
+            {{ error }}
+          </div>
+          {% endif %}
+          {% if error %}
+          <div class="alert alert-success">
+            {{ message }}
+          </div>
+          {% endif %}
+            <div class="col-md-6">
+                <h2>Inscritos</h2>                
+                <ul class="list-group">
+                  {% for alumno in alumnos_inscritos %}
+                    <a class="list-group-item" href="{% url 'remove_alumno' grupo.id alumno.id%}">
+                      <header class="d-flex justify-content-between">
+                        <p>{{ alumno.nombre }} {{ alumno.apellido_paterno }}</p>
+                      </header>  
+                    </a>
+                  {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6">
+              <h2>No Inscritos</h2>
+              <ul class="list-group">
+                {% for alumno in alumnos_no_inscritos %}
+                  <a class="list-group-item" href="{% url 'add_alumno' grupo.id alumno.id %}">
+                      <header class="d-flex justify-content-between">
+                        <p>{{ alumno.nombre }} {{ alumno.apellido_paterno }} </p>
+                      </header>
+                  </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+        </div>
+    </div>            
+    
+<style>
+      /* Estilo personalizado para cambiar el color al pasar el ratón */
+      .btn-hover:hover {
+          background-color: #DCDCDC;
+      }
+</style>
+</main>
+{% endblock %}

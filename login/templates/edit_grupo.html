@@ -2,7 +2,7 @@
     <main class="container py-5">
         <div class="card card-body">
             <div>
-                <h1>{{grupo.grupo}}</h1>
+                <h1>Grupo {{grupo.grupo}}</h1>
                 {{error}}
                 {% if message %}
                 <div class="alert alert-success">
@@ -13,17 +13,20 @@
                 <form method="POST">
                     {% csrf_token %}
                     {{form.as_p}}
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary"  {% if user.userprofile.rol != 'director' %}disabled{% endif %}>
                         Guardar cambios
                     </button>
                 </form>
                 <form action="{% url 'delete_grupo' grupo.id %}" method="POST">
                     {% csrf_token %}
-                    <button class="btn btn-warning">
+                    <button class="btn btn-danger"  {% if user.userprofile.rol != 'director' %}disabled{% endif %}>
                         Eliminar Grupo
                     </button>
+                    
                 </form>
-                
+                <a class="btn btn-warning" href="{% url 'list_alumnos' grupo.id %}" {% if user.userprofile.rol != 'director' and user.userprofile.rol != 'secretario' %}disabled{% endif %}>
+                    Agregar Alumnos
+                </a>
             </div>
         </div>
     </main>
